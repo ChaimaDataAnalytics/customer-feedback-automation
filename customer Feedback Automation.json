@@ -1,0 +1,318 @@
+{
+  "name": "customer Feedback Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "customer-feedback",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -544,
+        -48
+      ],
+      "id": "7f5d0e14-48ac-4e2a-a055-f1ba9d43e083",
+      "name": "Webhook",
+      "webhookId": "66698321-1e9e-4f38-88e8-7872756760f3"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-1JptuthVrBcyYXBBS5qBvp4sOdhixHN-MGw0QNXh44",
+          "mode": "list",
+          "cachedResultName": "Customer Feedback",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-1JptuthVrBcyYXBBS5qBvp4sOdhixHN-MGw0QNXh44/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-1JptuthVrBcyYXBBS5qBvp4sOdhixHN-MGw0QNXh44/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Comment": "={{ $json.body.comment }}",
+            "Email": "={{ $json.body.email }}",
+            "Rating": "={{ $json.body.rating }}",
+            "Name": "={{ $json.body.name }}",
+            "Date": "={{ $now }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comment",
+              "displayName": "Comment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rating",
+              "displayName": "Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -304,
+        -48
+      ],
+      "id": "a0ae150f-cc7b-427f-945e-c9e15a96b6f5",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5VrkVMO2zDecg4hd",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "chaima.analyst@gmail.com",
+        "subject": "🚨 Negative Feedback Alert",
+        "message": "=<h2>📊 New Customer Feedback</h2>\n\n<hr>\n\n<p><b>👤 Name:</b> {{$node[\"Webhook\"].json.body.name}}</p>\n\n<p><b>📧 Email:</b> {{$node[\"Webhook\"].json.body.email}}</p>\n\n<p><b>⭐ Rating:</b> {{$node[\"Webhook\"].json.body.rating}}</p>\n\n<p><b>💬 Comment:</b><br>\n{{$node[\"Webhook\"].json.body.comment}}\n</p>\n\n<hr>\n\n<h3>🤖 Sentiment Result</h3>\n\n<p>\n{{$json.output}}\n</p>\n\n<hr>\n\n<p style=\"color:gray;font-size:12px;\">\nThis email was sent automatically with n8n\n</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        464,
+        -128
+      ],
+      "id": "c38459e1-8e82-49a4-8bd7-0138a0196b09",
+      "name": "Send a message",
+      "webhookId": "770f3b15-a2b4-447a-bf84-cdd4cb95ed4d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TXVz8KEwIK4HwLTQ",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a customer feedback analyst.\n\nAnalyze the sentiment of the following feedback.\n\nClassify it as:\nPositive, Neutral, or Negative.\n\nFeedback:\n{{$json.Comment}}\n\nReturn:\n- Sentiment\n- Short summary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -112,
+        -48
+      ],
+      "id": "b06ce006-21cd-428e-ba4c-568255d88fa0",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -16,
+        144
+      ],
+      "id": "f58b126d-df1f-4a18-a174-30cbf5f91f46",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "WYKqjysdwb7GxYCS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "380d5e35-ac20-4836-9a74-e5f7d29938b3",
+              "leftValue": "={{ Number($node[\"Webhook\"].json.body.rating) }}",
+              "rightValue": 2,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        256,
+        -48
+      ],
+      "id": "0ac2d6bb-6727-4001-b02b-41bf47c21258",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "chaima.analyst@gmail.com",
+        "subject": "new customer feedback",
+        "message": "=<h2>📊 New Customer Feedback</h2>\n\n<hr>\n\n<p><b>👤 Name:</b> {{$node[\"Webhook\"].json.body.name}}</p>\n\n<p><b>📧 Email:</b> {{$node[\"Webhook\"].json.body.email}}</p>\n\n<p><b>⭐ Rating:</b> {{$node[\"Webhook\"].json.body.rating}}</p>\n\n<p><b>💬 Comment:</b><br>\n{{$node[\"Webhook\"].json.body.comment}}\n</p>\n\n<hr>\n\n<h3>🤖 Sentiment Result</h3>\n\n<p>\n{{$json.output}}\n</p>\n\n<hr>\n\n<p style=\"color:gray;font-size:12px;\">\nThis email was sent automatically with n8n\n</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        464,
+        64
+      ],
+      "id": "8105d7f7-353d-489d-b906-0b274c449de8",
+      "name": "Send a message1",
+      "webhookId": "770f3b15-a2b4-447a-bf84-cdd4cb95ed4d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TXVz8KEwIK4HwLTQ",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "8aaea096-21d6-47eb-8886-68f0635685a8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fc9ca25359854e78ea7739e02aa41163a360baf46a79b16631f57bacb4572235"
+  },
+  "id": "bVN6ojoC5WU8P7KF",
+  "tags": []
+}
