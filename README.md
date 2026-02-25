@@ -72,6 +72,3 @@ It helps businesses quickly identify negative customer experiences and respond f
 ## 📌 Notes
 
 This project is designed as a scalable automation template that can be adapted for various industries.
-
-أو نضيف badges ونجوم احترافية ⭐
-قولي لي… ونفجره مستوى أعلى 😏🚀
